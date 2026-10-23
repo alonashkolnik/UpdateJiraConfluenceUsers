@@ -18,6 +18,7 @@ import {
   getInstanceType,
 } from './auth/session-manager';
 import { openLoginWindow } from './auth/login-window';
+import { forgetDeclinedCertificates } from './auth/cert-trust';
 import { detectInstanceType } from './auth/instance-detector';
 import { createApi, getApi, clearApi } from './api/api-factory';
 import { ApiClient } from './api/api-client';
@@ -78,6 +79,7 @@ export function registerIpcHandlers() {
   handleWithLogging(IPC.CONNECT, async (url: string, freshLogin: boolean): Promise<ConnectionResult> => {
     const baseUrl = normalizeUrl(url);
     const isCloud = isCloudUrl(baseUrl);
+    forgetDeclinedCertificates();
     const ses = getOrCreateSession(baseUrl);
 
     logger.info('AUTH', `Connecting to ${baseUrl} (cloud=${isCloud}, freshLogin=${freshLogin})`);

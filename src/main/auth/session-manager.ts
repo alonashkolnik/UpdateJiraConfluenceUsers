@@ -2,6 +2,8 @@ import { session, Session } from 'electron';
 import crypto from 'crypto';
 import type { InstanceType } from '../../shared/types';
 import { logger } from '../logger';
+import { getMainWindow } from '../index';
+import { installCertificateCheck } from './cert-trust';
 
 /** Hash a URL to create a unique partition name */
 function hashUrl(url: string): string {
@@ -19,13 +21,11 @@ export function getOrCreateSession(baseUrl: string): Session {
   const partitionName = `persist:atlassian-${key}`;
   const ses = session.fromPartition(partitionName);
 
-  // Accept self-signed / untrusted certificates for DC instances.
-  // Many on-prem Jira/Confluence Data Center installations use
-  // self-signed or internal-CA certificates.
-  ses.setCertificateVerifyProc((_request, callback) => {
-    callback(0); // 0 = accept
-  });
-  logger.info('SESSION', `Created session ${partitionName} with certificate bypass`);
+  // Many on-prem Jira/Confluence Data Center installations use self-signed or
+  // internal-CA certificates: let the user trust this instance's certificate;
+  // everything else (Cloud, SSO hosts, ...) is verified normally.
+  installCertificateCheck(ses, new URL(baseUrl).hostname, getMainWindow);
+  logger.info('SESSION', `Created session ${partitionName}`);
 
   sessions.set(key, { ses, instanceType: null });
   return ses;

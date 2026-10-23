@@ -148,7 +148,9 @@ export class ApiClient {
                 }
               }
             }
-            const response = new Response(bodyStr, {
+            // A Response for 204/205/304 must not have a body (even an empty string)
+            const nullBody = [204, 205, 304].includes(incomingMessage.statusCode);
+            const response = new Response(nullBody ? null : bodyStr, {
               status: incomingMessage.statusCode,
               statusText: incomingMessage.statusMessage || '',
               headers: responseHeaders,
