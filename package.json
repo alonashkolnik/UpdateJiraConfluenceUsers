@@ -1,6 +1,6 @@
 {
   "name": "atlassian-user-manager",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Manage Jira & Confluence users across Cloud and Data Center instances",
   "type": "module",
   "main": "dist-electron/main/index.js",
